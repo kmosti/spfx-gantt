@@ -1,0 +1,27 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "gantt-chart-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/ganttChart/GanttChartWebPart.js",
+          "manifest": "./src/webparts/ganttChart/GanttChartWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {
+    "gantt": {
+      "path": "/node_modules/dhtmlx-gantt/codebase/dhtmlxgantt.js",
+      "globalName":  "gantt"
+    },
+    "dhtmlx": {
+      "path": "https://ateastavanger.azureedge.net/dhtmlx/codebase/dhtmlxcombo.js",
+      "globalName": "dhtmlx"
+    }
+  },
+  "localizedResources": {
+    "GanttChartWebPartStrings": "lib/webparts/ganttChart/loc/{locale}.js"
+  }
+}
