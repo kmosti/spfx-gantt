@@ -3,7 +3,7 @@
   "solution": {
     "name": "spfx-gantt-client-side-solution",
     "id": "04ea96df-a03c-4dab-b824-fc98da04d143",
-    "version": "1.0.1.0",
+    "version": "1.0.2.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true
   },

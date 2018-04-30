@@ -56,6 +56,8 @@ export default class GanttChart extends React.Component<IGanttChartProps, IGantt
       height: 200
     };
     this.handleZoomChange = this.handleZoomChange.bind(this);
+    this.initGanttEvents = this.initGanttEvents.bind(this);
+    this.findLinkBetween = this.findLinkBetween.bind(this);
   }
 
   private rowHeight: number = 35;
@@ -64,6 +66,10 @@ export default class GanttChart extends React.Component<IGanttChartProps, IGantt
     if (this.props.listTitle) {
       this._processInformation();
     }
+  }
+
+  public componentWillUnmount(): void {
+    gantt.destructor();
   }
     /**
      * Called after a properties or state update
@@ -116,11 +122,59 @@ export default class GanttChart extends React.Component<IGanttChartProps, IGantt
     }
   }
 
+  private findLinkBetween(targetTask, sourceTask){
+    var task = gantt.getTask(targetTask)
+    for(var i=0; i < task.$source.length; i++){
+       var link = gantt.getLink(task.$source[i]);
+
+       if(link.target == sourceTask){
+          return true;
+       }
+       //recursively inspect chain of linked tasks
+       if(this.findLinkBetween(link.target, sourceTask)){
+          return true;
+       }
+
+    }
+    return false;
+ }
+
   private initGanttEvents(): void {
+
+    function findLinkBetween(targetTask, sourceTask) {
+      var task = gantt.getTask(targetTask)
+      for(var i=0; i < task.$source.length; i++){
+         var link = gantt.getLink(task.$source[i]);
+
+         if(link.target == sourceTask){
+            return true;
+         }
+         //recursively inspect chain of linked tasks
+         if(findLinkBetween(link.target, sourceTask)){
+            return true;
+         }
+
+      }
+      return false;
+   }
+
     if(gantt.ganttEventsInitialized) {
       return;
     }
     gantt.ganttEventsInitialized = true;
+
+    gantt.attachEvent("onBeforeLinkAdd", function(id,item) {
+      if(findLinkBetween(item.target, item.source)){
+         gantt.alert({
+            title:"Error updating task",
+            type:"alert-error",
+            text: "Can't create circular link!"
+          });
+         return false;
+      } else{
+         return true;
+      }
+    });
 
     gantt.attachEvent('onAfterTaskAdd', (id, task) => {
 
@@ -531,7 +585,7 @@ export default class GanttChart extends React.Component<IGanttChartProps, IGantt
 
     //suppress enter key = save and close modal (to allow multi line edit for task details)
     gantt.keys.edit_save = -1;
-}
+  }
 
   private _processInformation() {
     this.loadData( "*, AssignedTo/EMail", this.props.listTitle ).then( res => {
